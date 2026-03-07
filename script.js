@@ -1,62 +1,81 @@
+const root = document.documentElement;
 const header = document.querySelector('.site-header');
 const menuToggle = document.querySelector('.menu-toggle');
-const nav = document.querySelector('.site-nav');
+const siteNav = document.querySelector('.site-nav');
+const themeToggle = document.querySelector('#theme-toggle');
 const navLinks = [...document.querySelectorAll('.site-nav a[href^="#"]')];
 const backToTop = document.querySelector('.back-to-top');
-const revealItems = document.querySelectorAll('.reveal');
 const form = document.querySelector('.quote-form');
 const statusMessage = document.querySelector('.form-status');
+const revealTargets = document.querySelectorAll('.reveal');
 
-// Mobile navigation toggle
-menuToggle?.addEventListener('click', () => {
-  const isOpen = nav.classList.toggle('open');
-  menuToggle.setAttribute('aria-expanded', String(isOpen));
-  menuToggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+// Theme setup
+const savedTheme = localStorage.getItem('west-cleaning-theme');
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+root.setAttribute('data-theme', initialTheme);
+
+const updateThemeButton = () => {
+  const dark = root.getAttribute('data-theme') === 'dark';
+  themeToggle?.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  themeToggle?.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+};
+updateThemeButton();
+
+themeToggle?.addEventListener('click', () => {
+  const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('west-cleaning-theme', next);
+  updateThemeButton();
 });
 
-// Close mobile menu after selecting a link
+// Mobile menu
+menuToggle?.addEventListener('click', () => {
+  const open = siteNav.classList.toggle('open');
+  menuToggle.setAttribute('aria-expanded', String(open));
+  menuToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+});
+
 navLinks.forEach((link) => {
   link.addEventListener('click', () => {
-    nav.classList.remove('open');
+    siteNav.classList.remove('open');
     menuToggle?.setAttribute('aria-expanded', 'false');
     menuToggle?.setAttribute('aria-label', 'Open navigation');
   });
 });
 
-// Sticky header style + back-to-top visibility
-const handleScroll = () => {
-  const scrolled = window.scrollY > 14;
-  header?.classList.toggle('scrolled', scrolled);
-  backToTop?.classList.toggle('show', window.scrollY > 420);
+// Scroll behavior
+const onScroll = () => {
+  const y = window.scrollY;
+  header?.classList.toggle('scrolled', y > 10);
+  backToTop?.classList.toggle('show', y > 350);
 };
-window.addEventListener('scroll', handleScroll, { passive: true });
-handleScroll();
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
-// Active navigation highlighting
+// Active nav links
 const sections = [...document.querySelectorAll('main section[id]')];
-const updateActiveLink = () => {
-  const scrollPosition = window.scrollY + 120;
+const markActiveNav = () => {
+  const position = window.scrollY + 130;
   let activeId = '';
 
   sections.forEach((section) => {
-    if (scrollPosition >= section.offsetTop) {
-      activeId = section.id;
-    }
+    if (position >= section.offsetTop) activeId = section.id;
   });
 
   navLinks.forEach((link) => {
     link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
   });
 };
-window.addEventListener('scroll', updateActiveLink, { passive: true });
-updateActiveLink();
+window.addEventListener('scroll', markActiveNav, { passive: true });
+markActiveNav();
 
 // Back to top
 backToTop?.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// Reveal-on-scroll animation
+// Reveal animations
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
@@ -66,11 +85,11 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  { threshold: 0.16 }
+  { threshold: 0.12 }
 );
-revealItems.forEach((item) => observer.observe(item));
+revealTargets.forEach((target) => observer.observe(target));
 
-// FAQ accordion behavior (one open at a time)
+// FAQ one-at-a-time behavior
 const faqItems = document.querySelectorAll('.faq-item');
 faqItems.forEach((item) => {
   item.addEventListener('toggle', () => {
@@ -81,37 +100,35 @@ faqItems.forEach((item) => {
   });
 });
 
-// Form validation + simulated success flow
+// Form validation
 form?.addEventListener('submit', (event) => {
   event.preventDefault();
+  let valid = true;
 
   const requiredFields = form.querySelectorAll('[required]');
-  let isValid = true;
-
   requiredFields.forEach((field) => {
-    const input = field;
-    if (!input.value.trim()) {
-      isValid = false;
-      input.setAttribute('aria-invalid', 'true');
+    if (!field.value.trim()) {
+      field.setAttribute('aria-invalid', 'true');
+      valid = false;
     } else {
-      input.removeAttribute('aria-invalid');
+      field.removeAttribute('aria-invalid');
     }
   });
 
   const emailInput = form.querySelector('#email');
-  const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
-  if (!emailIsValid) {
-    isValid = false;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+  if (!emailOk) {
     emailInput.setAttribute('aria-invalid', 'true');
+    valid = false;
   }
 
-  if (!isValid) {
-    statusMessage.textContent = 'Please complete all required fields and enter a valid email address.';
+  if (!valid) {
+    statusMessage.textContent = 'Please complete all required fields and provide a valid email address.';
     statusMessage.className = 'form-status error';
     return;
   }
 
-  statusMessage.textContent = 'Thank you. Your quote request has been received. Our team will contact you shortly.';
+  statusMessage.textContent = 'Thank you. Your quote request has been submitted. Our team will contact you shortly.';
   statusMessage.className = 'form-status success';
   form.reset();
 });
