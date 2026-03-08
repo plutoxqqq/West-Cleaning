@@ -8,6 +8,8 @@ const backToTop = document.querySelector('.back-to-top');
 const form = document.querySelector('.quote-form');
 const statusMessage = document.querySelector('.form-status');
 const revealTargets = document.querySelectorAll('.reveal');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sections = [...document.querySelectorAll('main section[id]')];
 
 // Theme setup
 const savedTheme = localStorage.getItem('west-cleaning-theme');
@@ -49,13 +51,7 @@ const onScroll = () => {
   const y = window.scrollY;
   header?.classList.toggle('scrolled', y > 10);
   backToTop?.classList.toggle('show', y > 350);
-};
-window.addEventListener('scroll', onScroll, { passive: true });
-onScroll();
 
-// Active nav links
-const sections = [...document.querySelectorAll('main section[id]')];
-const markActiveNav = () => {
   const position = window.scrollY + 130;
   let activeId = '';
 
@@ -67,12 +63,21 @@ const markActiveNav = () => {
     link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
   });
 };
-window.addEventListener('scroll', markActiveNav, { passive: true });
-markActiveNav();
+
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    onScroll();
+    scrollTicking = false;
+  });
+}, { passive: true });
+onScroll();
 
 // Back to top
 backToTop?.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
 });
 
 // Reveal animations
@@ -110,6 +115,17 @@ const activateTab = (tabName) => {
 tabButtons.forEach((button) => {
   button.addEventListener('click', () => {
     activateTab(button.dataset.tab);
+  });
+
+  button.addEventListener('keydown', (event) => {
+    if (!['ArrowRight', 'ArrowLeft'].includes(event.key)) return;
+    event.preventDefault();
+    const currentIndex = tabButtons.indexOf(button);
+    const direction = event.key === 'ArrowRight' ? 1 : -1;
+    const nextIndex = (currentIndex + direction + tabButtons.length) % tabButtons.length;
+    const nextButton = tabButtons[nextIndex];
+    activateTab(nextButton.dataset.tab);
+    nextButton.focus();
   });
 });
 
