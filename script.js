@@ -3,11 +3,15 @@ const header = document.querySelector('.site-header');
 const menuToggle = document.querySelector('.menu-toggle');
 const siteNav = document.querySelector('.site-nav');
 const themeToggle = document.querySelector('#theme-toggle');
-const navLinks = [...document.querySelectorAll('.site-nav a[href^="#"]')];
+const siteNavLinks = [...document.querySelectorAll('.site-nav a')];
+const sectionNavLinks = [...document.querySelectorAll('.site-nav a[href^="#"]')];
+const pageNavLinks = [...document.querySelectorAll('.site-nav a[href$=".html"]')];
 const backToTop = document.querySelector('.back-to-top');
 const form = document.querySelector('.quote-form');
 const statusMessage = document.querySelector('.form-status');
 const revealTargets = document.querySelectorAll('.reveal');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sections = [...document.querySelectorAll('main section[id]')];
 
 // Theme setup
 const savedTheme = localStorage.getItem('west-cleaning-theme');
@@ -29,16 +33,23 @@ themeToggle?.addEventListener('click', () => {
   updateThemeButton();
 });
 
+// Current page highlight
+const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+pageNavLinks.forEach((link) => {
+  const linkPage = link.getAttribute('href');
+  link.classList.toggle('active', linkPage === currentPage);
+});
+
 // Mobile menu
 menuToggle?.addEventListener('click', () => {
-  const open = siteNav.classList.toggle('open');
+  const open = siteNav?.classList.toggle('open');
   menuToggle.setAttribute('aria-expanded', String(open));
   menuToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
 });
 
-navLinks.forEach((link) => {
+siteNavLinks.forEach((link) => {
   link.addEventListener('click', () => {
-    siteNav.classList.remove('open');
+    siteNav?.classList.remove('open');
     menuToggle?.setAttribute('aria-expanded', 'false');
     menuToggle?.setAttribute('aria-label', 'Open navigation');
   });
@@ -49,13 +60,8 @@ const onScroll = () => {
   const y = window.scrollY;
   header?.classList.toggle('scrolled', y > 10);
   backToTop?.classList.toggle('show', y > 350);
-};
-window.addEventListener('scroll', onScroll, { passive: true });
-onScroll();
 
-// Active nav links
-const sections = [...document.querySelectorAll('main section[id]')];
-const markActiveNav = () => {
+  if (!sectionNavLinks.length || !sections.length) return;
   const position = window.scrollY + 130;
   let activeId = '';
 
@@ -63,16 +69,29 @@ const markActiveNav = () => {
     if (position >= section.offsetTop) activeId = section.id;
   });
 
-  navLinks.forEach((link) => {
+  sectionNavLinks.forEach((link) => {
     link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
   });
 };
-window.addEventListener('scroll', markActiveNav, { passive: true });
-markActiveNav();
+
+let scrollTicking = false;
+window.addEventListener(
+  'scroll',
+  () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      onScroll();
+      scrollTicking = false;
+    });
+  },
+  { passive: true }
+);
+onScroll();
 
 // Back to top
 backToTop?.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
 });
 
 // Reveal animations
@@ -88,6 +107,41 @@ const observer = new IntersectionObserver(
   { threshold: 0.12 }
 );
 revealTargets.forEach((target) => observer.observe(target));
+
+// Program tabs
+const tabButtons = [...document.querySelectorAll('.tab-btn')];
+const tabPanels = [...document.querySelectorAll('.tab-panel')];
+
+const activateTab = (tabName) => {
+  tabButtons.forEach((button) => {
+    const active = button.dataset.tab === tabName;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', String(active));
+  });
+
+  tabPanels.forEach((panel) => {
+    const active = panel.dataset.panel === tabName;
+    panel.classList.toggle('active', active);
+    panel.hidden = !active;
+  });
+};
+
+tabButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    activateTab(button.dataset.tab);
+  });
+
+  button.addEventListener('keydown', (event) => {
+    if (!['ArrowRight', 'ArrowLeft'].includes(event.key)) return;
+    event.preventDefault();
+    const currentIndex = tabButtons.indexOf(button);
+    const direction = event.key === 'ArrowRight' ? 1 : -1;
+    const nextIndex = (currentIndex + direction + tabButtons.length) % tabButtons.length;
+    const nextButton = tabButtons[nextIndex];
+    activateTab(nextButton.dataset.tab);
+    nextButton.focus();
+  });
+});
 
 // FAQ one-at-a-time behavior
 const faqItems = document.querySelectorAll('.faq-item');
