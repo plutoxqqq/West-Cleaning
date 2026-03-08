@@ -3,7 +3,9 @@ const header = document.querySelector('.site-header');
 const menuToggle = document.querySelector('.menu-toggle');
 const siteNav = document.querySelector('.site-nav');
 const themeToggle = document.querySelector('#theme-toggle');
-const navLinks = [...document.querySelectorAll('.site-nav a[href^="#"]')];
+const siteNavLinks = [...document.querySelectorAll('.site-nav a')];
+const sectionNavLinks = [...document.querySelectorAll('.site-nav a[href^="#"]')];
+const pageNavLinks = [...document.querySelectorAll('.site-nav a[href$=".html"]')];
 const backToTop = document.querySelector('.back-to-top');
 const form = document.querySelector('.quote-form');
 const statusMessage = document.querySelector('.form-status');
@@ -31,6 +33,13 @@ themeToggle?.addEventListener('click', () => {
   updateThemeButton();
 });
 
+// Current page highlight
+const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+pageNavLinks.forEach((link) => {
+  const linkPage = link.getAttribute('href');
+  link.classList.toggle('active', linkPage === currentPage);
+});
+
 // Mobile menu
 menuToggle?.addEventListener('click', () => {
   const open = siteNav?.classList.toggle('open');
@@ -38,7 +47,7 @@ menuToggle?.addEventListener('click', () => {
   menuToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
 });
 
-navLinks.forEach((link) => {
+siteNavLinks.forEach((link) => {
   link.addEventListener('click', () => {
     siteNav?.classList.remove('open');
     menuToggle?.setAttribute('aria-expanded', 'false');
@@ -52,6 +61,7 @@ const onScroll = () => {
   header?.classList.toggle('scrolled', y > 10);
   backToTop?.classList.toggle('show', y > 350);
 
+  if (!sectionNavLinks.length || !sections.length) return;
   const position = window.scrollY + 130;
   let activeId = '';
 
@@ -59,20 +69,24 @@ const onScroll = () => {
     if (position >= section.offsetTop) activeId = section.id;
   });
 
-  navLinks.forEach((link) => {
+  sectionNavLinks.forEach((link) => {
     link.classList.toggle('active', link.getAttribute('href') === `#${activeId}`);
   });
 };
 
 let scrollTicking = false;
-window.addEventListener('scroll', () => {
-  if (scrollTicking) return;
-  scrollTicking = true;
-  requestAnimationFrame(() => {
-    onScroll();
-    scrollTicking = false;
-  });
-}, { passive: true });
+window.addEventListener(
+  'scroll',
+  () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      onScroll();
+      scrollTicking = false;
+    });
+  },
+  { passive: true }
+);
 onScroll();
 
 // Back to top

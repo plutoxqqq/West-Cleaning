@@ -310,3 +310,16 @@ textarea {
   .footer-grid,
   .hero-stats { grid-template-columns: 1fr; }
 }
+
+.page-hero {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-2) 68%, transparent), transparent);
+}
+
+.inline-link {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.inline-link:hover {
+  color: var(--primary-2);
+}

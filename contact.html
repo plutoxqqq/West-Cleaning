@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact | West Cleaning</title>
+    <meta name="description" content="Request a tailored commercial cleaning quote from West Cleaning." />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header" id="top">
+      <div class="container nav-wrap">
+        <a href="index.html" class="brand" aria-label="West Cleaning home"><span class="brand-mark" aria-hidden="true">WC</span><span>West Cleaning</span></a>
+        <div class="header-actions">
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" title="Toggle dark mode"><span class="theme-icon" aria-hidden="true">◐</span></button>
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation"><span></span><span></span><span></span></button>
+        </div>
+        <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+          <a href="index.html">Home</a><a href="services.html">Services</a><a href="industries.html">Industries</a><a href="process.html">Process</a><a href="contact.html" class="btn btn-small">Get a Quote</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="section page-hero">
+        <div class="container section-head reveal">
+          <p class="eyebrow">Contact</p>
+          <h1>Request a formal proposal aligned to your site requirements.</h1>
+          <p>Share property details, preferred schedule, and service priorities. Our team will respond with a tailored scope.</p>
+        </div>
+      </section>
+
+      <section class="section alt">
+        <div class="container contact-grid">
+          <div class="reveal">
+            <h2>Contact details</h2>
+            <ul class="contact-list">
+              <li><strong>Phone:</strong> (03) 9000 4821</li>
+              <li><strong>Email:</strong> hello@westcleaning.com.au</li>
+              <li><strong>Office Hours:</strong> Monday to Friday, 7:00 AM to 6:00 PM</li>
+              <li><strong>Service Area:</strong> Metropolitan commercial precincts</li>
+            </ul>
+          </div>
+
+          <form class="quote-form card reveal" novalidate>
+            <label for="name">Full Name *</label>
+            <input id="name" name="name" type="text" required />
+
+            <label for="business">Business Name *</label>
+            <input id="business" name="business" type="text" required />
+
+            <div class="two-col">
+              <div>
+                <label for="email">Work Email *</label>
+                <input id="email" name="email" type="email" required />
+              </div>
+              <div>
+                <label for="phone">Phone Number *</label>
+                <input id="phone" name="phone" type="tel" required />
+              </div>
+            </div>
+
+            <label for="property">Property Type *</label>
+            <select id="property" name="property" required>
+              <option value="">Select a property type</option>
+              <option>Office</option>
+              <option>Retail Store</option>
+              <option>Warehouse</option>
+              <option>Medical Clinic</option>
+              <option>Strata/Common Area</option>
+              <option>Commercial Building</option>
+              <option>Other Commercial Property</option>
+            </select>
+
+            <label for="services-needed">Services Required *</label>
+            <input id="services-needed" name="services-needed" type="text" required placeholder="For example, routine office cleaning and restroom servicing" />
+
+            <label for="message">Project Notes *</label>
+            <textarea id="message" name="message" rows="4" required placeholder="Briefly describe your site, preferred frequency, and start date."></textarea>
+
+            <button class="btn" type="submit">Submit Quote Request</button>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="container footer-bottom"><p>© <span id="year"></span> West Cleaning. All rights reserved.</p></div></footer>
+    <button class="back-to-top" type="button" aria-label="Back to top">↑</button>
+    <script src="script.js"></script>
+  </body>
+</html>
