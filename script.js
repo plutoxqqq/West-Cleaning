@@ -31,14 +31,14 @@ themeToggle?.addEventListener('click', () => {
 
 // Mobile menu
 menuToggle?.addEventListener('click', () => {
-  const open = siteNav.classList.toggle('open');
+  const open = siteNav?.classList.toggle('open');
   menuToggle.setAttribute('aria-expanded', String(open));
   menuToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
 });
 
 navLinks.forEach((link) => {
   link.addEventListener('click', () => {
-    siteNav.classList.remove('open');
+    siteNav?.classList.remove('open');
     menuToggle?.setAttribute('aria-expanded', 'false');
     menuToggle?.setAttribute('aria-label', 'Open navigation');
   });
@@ -88,6 +88,30 @@ const observer = new IntersectionObserver(
   { threshold: 0.12 }
 );
 revealTargets.forEach((target) => observer.observe(target));
+
+// Program tabs
+const tabButtons = [...document.querySelectorAll('.tab-btn')];
+const tabPanels = [...document.querySelectorAll('.tab-panel')];
+
+const activateTab = (tabName) => {
+  tabButtons.forEach((button) => {
+    const active = button.dataset.tab === tabName;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-selected', String(active));
+  });
+
+  tabPanels.forEach((panel) => {
+    const active = panel.dataset.panel === tabName;
+    panel.classList.toggle('active', active);
+    panel.hidden = !active;
+  });
+};
+
+tabButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    activateTab(button.dataset.tab);
+  });
+});
 
 // FAQ one-at-a-time behavior
 const faqItems = document.querySelectorAll('.faq-item');
